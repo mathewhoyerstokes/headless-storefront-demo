@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ export function ShopBrowser({ products }: { products: Product[] }) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const sortParam = searchParams.get("sort");
-  const query = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const category = categoryFromParam(categoryParam);
   const sort: SortKey = isSortKey(sortParam) ? sortParam : "featured";
   const visible = queryProducts(products, {
@@ -30,7 +30,7 @@ export function ShopBrowser({ products }: { products: Product[] }) {
     q: query,
   });
 
-  function update(next: { category?: string | null; sort?: string | null; q?: string | null }) {
+  function update(next: { category?: string | null; sort?: string | null }) {
     const params = new URLSearchParams(searchParams.toString());
     const apply = (key: string, value: string | null | undefined, hidden: string[]) => {
       if (value === undefined) return;
@@ -42,7 +42,6 @@ export function ShopBrowser({ products }: { products: Product[] }) {
     };
     apply("category", next.category, ["all"]);
     apply("sort", next.sort, ["featured"]);
-    apply("q", next.q, []);
     const qs = params.toString();
     router.replace(qs ? `/shop?${qs}` : "/shop", { scroll: false });
   }
@@ -102,7 +101,7 @@ export function ShopBrowser({ products }: { products: Product[] }) {
               value={query}
               placeholder="Search objects"
               className="h-10 sm:w-52"
-              onChange={(event) => update({ q: event.target.value })}
+              onChange={(event) => setQuery(event.target.value)}
             />
             <label className="sr-only" htmlFor="catalog-sort">
               Sort objects
@@ -133,7 +132,10 @@ export function ShopBrowser({ products }: { products: Product[] }) {
             <Button
               type="button"
               className="mt-6 h-11 px-5"
-              onClick={() => update({ category: null, sort: null, q: null })}
+              onClick={() => {
+                setQuery("");
+                update({ category: null, sort: null });
+              }}
             >
               Clear filters
             </Button>

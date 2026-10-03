@@ -36,6 +36,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           alt={product.imageAlt}
           fill
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+          priority={index === 0}
           className="object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
         />
         {product.stock <= 4 ? (
